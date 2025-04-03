@@ -49,7 +49,7 @@ export function CurrencyRates() {
     if (currencyRates) {
       form.setFieldsValue({
         USD_to_RUB: parseFloat(currencyRates.USD_to_RUB.$numberDecimal),
-        USD_to_CNY: parseFloat(currencyRates.USD_to_CNY.$numberDecimal),
+        USD_to_TJS: parseFloat(currencyRates.USD_to_TJS.$numberDecimal),
       });
     }
   };
@@ -67,8 +67,8 @@ export function CurrencyRates() {
             {currencyRates.USD_to_RUB.$numberDecimal}
           </p>
           <p>
-            <strong>Курс USD к CNY:</strong>{" "}
-            {currencyRates.USD_to_CNY.$numberDecimal}
+            <strong>Курс USD к TJS:</strong>{" "}
+            {currencyRates.USD_to_TJS.$numberDecimal}
           </p>
           <p>
             <strong>Обновлено:</strong> {currencyRates.lastUpdate}
@@ -102,8 +102,8 @@ export function CurrencyRates() {
           </Form.Item>
 
           <Form.Item
-            label="Курс USD к CNY"
-            name="USD_to_CNY"
+            label="Курс USD к TJS"
+            name="USD_to_TJS"
             rules={[{ required: true, message: "Пожалуйста, введите курс!" }]}
           >
             <InputNumber />

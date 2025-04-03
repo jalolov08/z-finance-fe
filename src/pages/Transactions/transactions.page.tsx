@@ -149,7 +149,7 @@ export default function Transactions() {
         return `
         USD: ${parseFloat(text.USD.$numberDecimal).toFixed(2)}
         | RUB: ${parseFloat(text.RUB.$numberDecimal).toFixed(2)} 
-       | CNY: ${parseFloat(text.CNY.$numberDecimal).toFixed(2)} 
+       | TJS: ${parseFloat(text.TJS.$numberDecimal).toFixed(2)} 
           `;
       },
     },
@@ -166,9 +166,9 @@ export default function Transactions() {
         parseFloat(text.$numberDecimal),
     },
     {
-      title: "Курс USD/CNY",
-      dataIndex: "USD_to_CNY",
-      key: "USD_to_CNY",
+      title: "Курс USD/TJS",
+      dataIndex: "USD_to_TJS",
+      key: "USD_to_TJS",
       render: (text: { $numberDecimal: string }) =>
         parseFloat(text.$numberDecimal),
     },

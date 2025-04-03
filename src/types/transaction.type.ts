@@ -15,7 +15,7 @@ export interface ITransaction {
   USD_to_RUB: {
     $numberDecimal: string;
   };
-  USD_to_CNY: {
+  USD_to_TJS: {
     $numberDecimal: string;
   };
   amount: {
@@ -25,7 +25,7 @@ export interface ITransaction {
     RUB: {
       $numberDecimal: string;
     };
-    CNY: {
+    TJS: {
       $numberDecimal: string;
     };
   };

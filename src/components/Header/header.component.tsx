@@ -116,11 +116,11 @@ export function Header({
               <Text style={textStyle}>{data.USD_to_RUB.$numberDecimal}</Text>
             </Tooltip>
             <span style={{ marginLeft: 8 }}>|</span>
-            <Tooltip title="Курс USD к CNY">
+            <Tooltip title="Курс USD к TJS">
               <Text strong style={textStyle}>
-                USD/CNY:{" "}
+                USD/TJS:{" "}
               </Text>
-              <Text style={textStyle}>{data.USD_to_CNY.$numberDecimal}</Text>
+              <Text style={textStyle}>{data.USD_to_TJS.$numberDecimal}</Text>
             </Tooltip>
 
             <Button
