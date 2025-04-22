@@ -33,6 +33,10 @@ function App() {
             <Route path="/incomes" element={<Incomes />} />
             <Route path="/expenses" element={<Expenses />} />
             <Route path="/transactions" element={<Transactions />} />
+            <Route
+              path="/transactions/:cashboxId/:name"
+              element={<Transactions />}
+            />
           </Route>
         </Route>
       </Routes>

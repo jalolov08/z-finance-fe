@@ -28,6 +28,7 @@ import {
 } from "antd";
 import { DownOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useParams } from "react-router-dom";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -35,6 +36,7 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 export default function Transactions() {
+  const { cashboxId, name } = useParams();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [page, setPage] = useState<number>(1);
@@ -46,7 +48,6 @@ export default function Transactions() {
     undefined
   );
   const [expenseId, setExpenseId] = useState<string | undefined>(undefined);
-  const [cashboxId, setCashboxId] = useState<string | undefined>(undefined);
   const [incomeId, setIncomeId] = useState<string | undefined>(undefined);
   const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -318,7 +319,7 @@ export default function Transactions() {
     <div style={{ padding: 24 }}>
       {contextHolder}
 
-      <Title level={2}>Транзакции </Title>
+      <Title level={2}>Транзакции {name}</Title>
 
       <Space style={{ marginBottom: 16 }}>
         <RangePicker
@@ -369,20 +370,6 @@ export default function Transactions() {
             </Option>
           ))}
         </Select>
-        <Select
-          placeholder="Фильтр по кассе"
-          onChange={(value) => setCashboxId(value)}
-          allowClear
-          style={{ width: 200 }}
-          loading={casxhboxListLoading}
-        >
-          {cashboxList?.map((cashbox) => (
-            <Option key={cashbox._id} value={cashbox._id}>
-              {cashbox.name} | {cashbox.currency}
-            </Option>
-          ))}
-        </Select>
-
         <Select
           placeholder="Фильтр по расходу"
           onChange={(value) => setExpenseId(value)}

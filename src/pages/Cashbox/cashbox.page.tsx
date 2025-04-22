@@ -16,10 +16,12 @@ import useMessage from "antd/es/message/useMessage";
 import { api } from "../../api/api";
 import { DownOutlined } from "@ant-design/icons";
 import { Currency } from "../../types/currency.type";
+import { useNavigate } from "react-router-dom";
 
 const { Title } = Typography;
 
 export default function Cashbox() {
+  const navigate = useNavigate();
   const {
     data: cashboxes,
     loading,
@@ -108,6 +110,14 @@ export default function Cashbox() {
           <Menu>
             <Menu.Item onClick={() => handleOpenModal(cashbox)}>
               Изменить
+            </Menu.Item>
+
+            <Menu.Item
+              onClick={() =>
+                navigate(`/transactions/${cashbox._id}/${cashbox.name}`)
+              }
+            >
+              Смотреть транзакции
             </Menu.Item>
           </Menu>
         );
