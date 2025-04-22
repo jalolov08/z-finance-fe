@@ -5,7 +5,13 @@ export enum TransactionType {
   EXPENSE = "Расход",
 }
 
+export enum TransactionStatus {
+  PENDING = "Ожидается",
+  COMPLETED = "Завершено",
+}
+
 export interface ITransaction {
+  status: TransactionStatus;
   _id: string;
   type: TransactionType;
   date: string;

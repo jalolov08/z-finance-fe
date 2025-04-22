@@ -5,7 +5,7 @@ import { API } from "../config/config";
 
 export const api = axios.create({
   baseURL: API,
-  withCredentials: false,
+  withCredentials: true,
 });
 
 const getAccessToken = () => localStorage.getItem("token");

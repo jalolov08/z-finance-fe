@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { ITransaction, TransactionType } from "../../types/transaction.type";
+import {
+  ITransaction,
+  TransactionStatus,
+  TransactionType,
+} from "../../types/transaction.type";
 import useGetRequest from "../../hooks/useGetRequest";
 import { IExpense } from "../../types/expense.type";
 import { IIncome } from "../../types/income.type";
@@ -9,6 +13,7 @@ import { Currency } from "../../types/currency.type";
 import useMessage from "antd/es/message/useMessage";
 import {
   Button,
+  DatePicker,
   Dropdown,
   Form,
   Input,
@@ -22,10 +27,12 @@ import {
   Typography,
 } from "antd";
 import { DownOutlined } from "@ant-design/icons";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
+const { RangePicker } = DatePicker;
 
 export default function Transactions() {
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
@@ -35,6 +42,9 @@ export default function Transactions() {
   const [total, setTotal] = useState<number>(0);
   const [currency, setCurrency] = useState<Currency | undefined>(undefined);
   const [type, setType] = useState<TransactionType | undefined>(undefined);
+  const [status, setStatus] = useState<TransactionStatus | undefined>(
+    undefined
+  );
   const [expenseId, setExpenseId] = useState<string | undefined>(undefined);
   const [cashboxId, setCashboxId] = useState<string | undefined>(undefined);
   const [incomeId, setIncomeId] = useState<string | undefined>(undefined);
@@ -43,12 +53,26 @@ export default function Transactions() {
   const [confirmLoading, setConfirmLoading] = useState<boolean>(false);
   const [messageApi, contextHolder] = useMessage();
   const [form] = Form.useForm();
+  const [selectedTransactions, setSelectedTransactions] = useState<string[]>(
+    []
+  );
+  const [dateRange, setDateRange] = useState<
+    [dayjs.Dayjs, dayjs.Dayjs] | undefined
+  >([dayjs().startOf("month"), dayjs().endOf("month")]);
   const { data: expenseList, loading: expenseListLoading } =
     useGetRequest<IExpense[]>("/expense");
   const { data: incomeList, loading: incomeListLoading } =
     useGetRequest<IIncome[]>("/income");
   const { data: cashboxList, loading: casxhboxListLoading } =
     useGetRequest<ICashbox[]>("/cashbox");
+
+  const handleRangeChange = (dates: any) => {
+    if (dates) {
+      setDateRange([dates[0], dates[1]]);
+    } else {
+      setDateRange(undefined);
+    }
+  };
 
   const fetchTransactions = async () => {
     setLoading(true);
@@ -66,6 +90,9 @@ export default function Transactions() {
           cashboxId,
           currency,
           search: searchTerm,
+          startDate: dateRange ? dateRange[0] : undefined,
+          endDate: dateRange ? dateRange[1] : undefined,
+          status,
         },
       });
 
@@ -96,6 +123,26 @@ export default function Transactions() {
     }
   };
 
+  const handleCompleteTransactions = async () => {
+    setConfirmLoading(true);
+
+    try {
+      await api.post("/transaction/complete", {
+        transactionIds: selectedTransactions,
+      });
+      messageApi.success("Транзакции успешно завершены.");
+
+      fetchTransactions();
+      setIsModalOpen(false);
+    } catch (error: any) {
+      console.error("Error saving transaction", error);
+      messageApi.error(error.response.data.error);
+    } finally {
+      setConfirmLoading(false);
+      setSelectedTransactions([]);
+    }
+  };
+
   const handleDeleteTransaction = async (id: string) => {
     try {
       await api.delete(`/transaction/${id}`);
@@ -118,9 +165,16 @@ export default function Transactions() {
     cashboxId,
     currency,
     searchTerm,
+    dateRange,
+    status,
   ]);
 
   const columns = [
+    {
+      title: "Статус",
+      dataIndex: "status",
+      key: "status",
+    },
     {
       title: "Дата",
       dataIndex: "date",
@@ -202,6 +256,16 @@ export default function Transactions() {
       key: "ownerName",
     },
     {
+      title: "Завершено в ",
+      dataIndex: "completedAt",
+      key: "completedAt",
+    },
+    {
+      title: "Завершил ",
+      dataIndex: "completedByName",
+      key: "completedByName",
+    },
+    {
       title: "",
       key: "actions",
       render: (_: any, transaction: ITransaction) => {
@@ -234,6 +298,22 @@ export default function Transactions() {
     setPage(1);
   };
 
+  const rowClassName = (record: ITransaction) => {
+    if (record.status === TransactionStatus.COMPLETED) {
+      return "row-green";
+    } else if (record.status === TransactionStatus.PENDING) {
+      return "row-yellow";
+    }
+    return "";
+  };
+
+  const rowSelection = {
+    selectedRowKeys: selectedTransactions,
+    onChange: (selectedRowKeys: React.Key[]) => {
+      setSelectedTransactions(selectedRowKeys as string[]);
+    },
+  };
+
   return (
     <div style={{ padding: 24 }}>
       {contextHolder}
@@ -241,11 +321,30 @@ export default function Transactions() {
       <Title level={2}>Транзакции </Title>
 
       <Space style={{ marginBottom: 16 }}>
+        <RangePicker
+          onChange={handleRangeChange}
+          placeholder={["Начало", "Конец"]}
+          format="DD.MM.YY"
+          value={dateRange}
+        />
+
         <Search
           placeholder="Поиск по названию"
           onSearch={handleSearch}
           allowClear
         />
+        <Select
+          placeholder="Фильтр по статусу"
+          onChange={(value) => setStatus(value)}
+          allowClear
+          style={{ width: 200 }}
+        >
+          {Object.values(TransactionStatus).map((status) => (
+            <Option key={status} value={status}>
+              {status}
+            </Option>
+          ))}
+        </Select>
         <Select
           placeholder="Фильтр по типу транзакции"
           onChange={(value) => setType(value)}
@@ -315,9 +414,20 @@ export default function Transactions() {
         <Button type="primary" onClick={() => setIsModalOpen(true)}>
           Добавить
         </Button>
+
+        <Button
+          type="primary"
+          onClick={handleCompleteTransactions}
+          disabled={selectedTransactions.length === 0}
+          loading={confirmLoading}
+        >
+          Завершить
+        </Button>
       </Space>
 
       <Table
+        rowSelection={rowSelection}
+        rowClassName={rowClassName}
         columns={columns}
         dataSource={transactions}
         rowKey={(record) => record._id}
