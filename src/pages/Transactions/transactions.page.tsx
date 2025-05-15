@@ -29,6 +29,8 @@ import {
 import { DownOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { useParams } from "react-router-dom";
+import { useDownloadFile } from "../../hooks/useDownloadFile";
+import { PiMicrosoftExcelLogo } from "react-icons/pi";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -66,6 +68,18 @@ export default function Transactions() {
     useGetRequest<IIncome[]>("/income");
   const { data: cashboxList, loading: casxhboxListLoading } =
     useGetRequest<ICashbox[]>("/cashbox");
+  const { loading: downloadLoading, downloadFile } = useDownloadFile();
+
+  const handleExport = () => {
+    downloadFile("/transaction/excel", "transactions.xlsx", {
+      type,
+      cashboxId,
+      startDate: dateRange ? dateRange[0] : undefined,
+      endDate: dateRange ? dateRange[1] : undefined,
+      incomeId,
+      expenseId,
+    });
+  };
 
   const handleRangeChange = (dates: any) => {
     if (dates) {
@@ -321,7 +335,7 @@ export default function Transactions() {
 
       <Title level={2}>Транзакции {name}</Title>
 
-      <Space style={{ marginBottom: 16 }}>
+      <Space style={{ marginBottom: 16, flexWrap: "wrap" }}>
         <RangePicker
           onChange={handleRangeChange}
           placeholder={["Начало", "Конец"]}
@@ -400,6 +414,15 @@ export default function Transactions() {
 
         <Button type="primary" onClick={() => setIsModalOpen(true)}>
           Добавить
+        </Button>
+
+        <Button
+          type="default"
+          loading={downloadLoading}
+          icon={<PiMicrosoftExcelLogo />}
+          onClick={handleExport}
+        >
+          Экспорт в Excel
         </Button>
 
         <Button
